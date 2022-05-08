@@ -39,7 +39,7 @@ Open source code, you can modify and adapt to more projects
 
 cblb-miner-cli will automatically generate the corresponding number of miner wallets and save PRIVATE KEY and WALLET ADDRESS within the `wallet.json` file, keep this file safe and DO NOT transfer large amount token.
 
-After the initialization is completed, you need to transfer the MATIC tokens under the Polygon network to the leader wallet address recorded in the wallet.json file. By default, 50 miners are recommended to transfer at least 3 MATICs, and for security reasons, no more than 100 MATICs.
+After the initialization is completed, you need to transfer the MATIC tokens under the Polygon network to the leader wallet address recorded in the wallet.json file. By default, 100 miners are recommended to transfer at least 3 MATICs, and for security reasons, no more than 160 MATICs.
 
 <a id="start-mining"></a>
 
