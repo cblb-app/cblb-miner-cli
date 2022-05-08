@@ -13,9 +13,6 @@ def logOneLine(str):
 
     if not isLogFolderExist:
         os.mkdir('logs', 0o666)
-
-    print(todayLogFilePath)
-    assert os.path.isfile(todayLogFilePath)
     
     if not isTodayLogFolderExist:
         with open(todayLogFilePath, 'w') as f:

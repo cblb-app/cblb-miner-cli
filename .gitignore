@@ -1,3 +1,5 @@
 state.json
 wallet.json
 logs/
+*.pyc
+*__pycache__/
