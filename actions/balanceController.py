@@ -126,11 +126,10 @@ def collectWalletCblb(w3, walletObj):
     if os.getenv('BENEFICIARY_ADDRESS') == walletObj.address:
         log.logOneLine('Beneficiary address is self, skip collect')
     else:
-        balanceWallet = getCblbBalance(w3, walletObj)
+        balanceWallet = state.getAddressCblbBalance(walletObj)
         if float(balanceWallet) > float(os.getenv('CBLB_COLLECT_THRESHOLD')):
             transferCblb(w3, walletObj, os.getenv('BENEFICIARY_ADDRESS'), balanceWallet)
             state.updateAddressCblbBalance(walletObj.address, '0')
         else:
-            state.updateAddressCblbBalance(walletObj.address, balanceWallet)
             log.logOneLine('Wallet address ' + walletObj.address + ' has ' + str(balanceWallet) + ' CBLB, within collect threshold ' + os.getenv('CBLB_COLLECT_THRESHOLD') + ', skip collect')
         
