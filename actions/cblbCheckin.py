@@ -6,6 +6,7 @@ from munch import DefaultMunch
 from web3 import Web3
 # modules
 from libs import log
+from libs import state
 
 load_dotenv()
 
@@ -14,26 +15,23 @@ chainId = int(os.getenv("CHAIN_ID"))
 def checkinAll(w3, leaderWalletObj, minersWalletArray):
     log.logOneLine('-------Checkin actions for leader and miners-------')
     checkin(w3, leaderWalletObj)
-    time.sleep(1)
     for minerWalletObj in minersWalletArray:
         checkin(w3, minerWalletObj)
-        time.sleep(1)
 
 def checkin(w3, walletObj):
-    # load abi
-    abiCblbCheckinContract = {}
-    abiCblbTokenContract = {}
-    with open('abi.json', 'r') as f:
-        abiDict = json.load(f)
-        abiObj = DefaultMunch.fromDict(abiDict)
-        abiCblbCheckinContract = abiObj.cblbCheckinContractAbi
-        abiCblbTokenContract = abiObj.cblbTokenContractAbi
+    balanceMatic = state.getAddressMaticBalance(walletObj.address)
 
-    balanceMatic = w3.eth.get_balance(walletObj.address)
-
-    if not w3.fromWei(balanceMatic, 'ether') > float(os.getenv('CHECKIN_MATIC_BALANCE_MIN')):
-        log.logOneLine('Wallet'+ walletObj.address + ' MATIC balance is '+ str(w3.fromWei(balanceMatic, 'ether'))+' unsuffi for checkin, make sure there at least'+ os.getenv('CHECKIN_MATIC_BALANCE_MIN')+ 'MATIC')
+    if not float(balanceMatic) > float(os.getenv('CHECKIN_MATIC_BALANCE_MIN')):
+        log.logOneLine('Wallet '+ walletObj.address + ' MATIC balance is '+ balanceMatic +' unsuffi for checkin, make sure there at least '+ os.getenv('CHECKIN_MATIC_BALANCE_MIN')+ ' MATIC')
     else:
+        # load abi
+        abiCblbCheckinContract = {}
+        abiCblbTokenContract = {}
+        with open('abi.json', 'r') as f:
+            abiDict = json.load(f)
+            abiObj = DefaultMunch.fromDict(abiDict)
+            abiCblbCheckinContract = abiObj.cblbCheckinContractAbi
+            abiCblbTokenContract = abiObj.cblbTokenContractAbi
 
         # interact with contract
         cblbCheckinContractInstance = w3.eth.contract(address=os.getenv('CBLB_CHECKIN_CONTRACT_ADDRESS'), abi=abiCblbCheckinContract)
