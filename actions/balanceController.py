@@ -85,7 +85,7 @@ def balanceLeaderAndMinerMatic(w3, leaderWalletObj, minersWalletArrayObj):
             log.logOneLine('Miner address ' + minerWalletObj.address + ' balance is ' + str(balanceMiner) + ' MATIC, transfer out MATIC to leader address.')
             valueTransfer = float(balanceMiner) - float(os.getenv('MINER_MATIC_BALANCE_PROPERGATE'))
             transferMatic(w3, minerWalletObj, leaderWalletObj.address, valueTransfer)
-            
+
             balanceLeader = float(balanceLeader) + valueTransfer
             state.updateAddressMaticBalance(leaderWalletObj.address, balanceLeader)
             state.updateAddressMaticBalance(minerWalletObj.address, str(os.getenv('MINER_MATIC_BALANCE_PROPERGATE')))
@@ -99,7 +99,7 @@ def balanceLeaderAndMinerMatic(w3, leaderWalletObj, minersWalletArrayObj):
                 minerBalance = state.getAddressMaticBalance(minerWalletObj.address)
                 if float(minerBalance) < float(os.getenv('MINER_MATIC_BALANCE_MIN')):
                     transferMatic(w3, leaderWalletObj, minerWalletObj.address, float(os.getenv('MINER_MATIC_BALANCE_PROPERGATE')))
-                    time.sleep(2)
+                    time.sleep(5)
 
                     currBalanceLeader = currBalanceLeader - float(os.getenv('MINER_MATIC_BALANCE_PROPERGATE'))
                     state.updateAddressMaticBalance(leaderWalletObj.address, currBalanceLeader)
