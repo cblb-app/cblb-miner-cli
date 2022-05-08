@@ -12,7 +12,7 @@ def logOneLine(str):
     structedLogs = '[CBLB MINER]: ' + datetime.now().strftime("%Y/%m/%d, %H:%M:%S, ") + str + '\n'
 
     if not isLogFolderExist:
-        os.mkdir('logs', 0o666)
+        os.mkdir('logs', 0o755)
     
     if not isTodayLogFolderExist:
         with open(todayLogFilePath, 'w') as f:
