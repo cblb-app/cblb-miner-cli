@@ -23,7 +23,7 @@ Open source code, you can modify and adapt to more projects
 ## Use previous configuration
 
 - Modify `BENEFICIARY_ADDRESS` in .env file as beneficiary erc20 wallet address for receiving CBLB tokens, default is empty (**important**)
-- Modify `MINER_NUMBER` in the .env file as the required number of miners, the default is 50. The number of miners after initialization does not support secondary modification
+- Modify `MINER_NUMBER` in the .env file as the required number of miners, the default is 100. The number of miners after initialization does not support secondary modification
 
 <a id="initialize"></a>
 

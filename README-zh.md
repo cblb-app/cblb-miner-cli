@@ -23,7 +23,7 @@ cblb-miner-cli 是[cblb.app](https://cblb.app)发布的基于 Polygon 的 Cblb �
 ## 使用之前的配置
 
 - 修改.env 文件中的`BENEFICIARY_ADDRESS`作为接收[CBLB](https://polygonscan.com/token/0x7a45922F95C845Ff9bE01112AfCF207968a9cA0B)代币的受益人 erc20 钱包地址，默认为空（**重要**）
-- 修改.env 文件中的`MINER_NUMBER`作为需要的矿工数量，默认为 50，初始化后矿工数量不支持二次修改
+- 修改.env 文件中的`MINER_NUMBER`作为需要的矿工数量，默认为 100，初始化后矿工数量不支持二次修改
 
 <a id="初始化"></a>
 
