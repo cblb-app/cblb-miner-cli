@@ -6,7 +6,7 @@ from munch import DefaultMunch
 from web3 import Web3
 # modules
 from libs import log
-from libs import state
+from libs import localDb
 
 load_dotenv()
 
@@ -19,23 +19,22 @@ def checkinAll(w3, leaderWalletObj, minersWalletArray):
         checkin(w3, minerWalletObj)
 
 def checkin(w3, walletObj):
-    balanceMatic = state.getAddressMaticBalance(walletObj.address)
+    balanceMatic = localDb.getAddressMaticBalance(walletObj.address)
 
     if not float(balanceMatic) > float(os.getenv('CHECKIN_MATIC_BALANCE_MIN')):
         log.logOneLine('Wallet '+ walletObj.address + ' MATIC balance is '+ balanceMatic +' unsuffi for checkin, make sure there at least '+ os.getenv('CHECKIN_MATIC_BALANCE_MIN')+ ' MATIC')
     else:
         # load abi
         abiCblbCheckinContract = {}
-        abiCblbTokenContract = {}
         with open('abi.json', 'r') as f:
             abiDict = json.load(f)
             abiObj = DefaultMunch.fromDict(abiDict)
             abiCblbCheckinContract = abiObj.cblbCheckinContractAbi
-            abiCblbTokenContract = abiObj.cblbTokenContractAbi
 
         # interact with contract
         cblbCheckinContractInstance = w3.eth.contract(address=os.getenv('CBLB_CHECKIN_CONTRACT_ADDRESS'), abi=abiCblbCheckinContract)
-        checkinGap = cblbCheckinContractInstance.functions.getCheckinGap().call({'from': walletObj.address})
+        # checkinGap = cblbCheckinContractInstance.functions.getCheckinGap().call({'from': walletObj.address})
+        checkinGap = localDb.getCheckinGap(walletObj.address)
 
         # checkin gap is more than 1 day?
         if not float(checkinGap) > float(os.getenv('CHECKIN_ONE_DAY_DURATION')):
@@ -63,13 +62,10 @@ def checkin(w3, walletObj):
 def getCheckinGap(w3, walletObj):
     # load abi
     abiCblbCheckinContract = {}
-    abiCblbTokenContract = {}
     with open('abi.json', 'r') as f:
         abiDict = json.load(f)
         abiObj = DefaultMunch.fromDict(abiDict)
         abiCblbCheckinContract = abiObj.cblbCheckinContractAbi
-        abiCblbTokenContract = abiObj.cblbTokenContractAbi
-        log.logOneLine('Loaded checkin contract abi')
 
     # interact with contract
     cblbCheckinContractInstance = w3.eth.contract(address=os.getenv('CBLB_CHECKIN_CONTRACT_ADDRESS'), abi=abiCblbCheckinContract)

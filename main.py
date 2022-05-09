@@ -2,6 +2,7 @@ from web3 import Web3
 from dotenv import load_dotenv
 import os
 import json
+import time
 from munch import DefaultMunch
 from decimal import Decimal
 # for Polygon add middleware
@@ -10,9 +11,9 @@ from web3.middleware import geth_poa_middleware
 # module
 import libs.wallet as wallet
 import libs.log as log
-import actions.cblbCheckin as cblbCheckin
+import actions.checkinController as checkinController
 import actions.balanceController as balanceController
-import libs.state as state
+import libs.localDb as localDb
 
 load_dotenv()
 
@@ -62,17 +63,32 @@ else:
 
 log.logOneLine('Start checkin mining loop')
 
-# update db
-state.updateAll()
+while True:
+    try:
+        # update db
+        stateDict = localDb.updateAll()
+        stateObj = DefaultMunch.fromDict(stateDict)
 
-# balancer wallets
-balanceController.balanceLeaderAndMinerMatic(w3, wallets.leader, wallets.miners)
+        if bool(stateObj.isNeedFund):
+            balanceController.waitFundLoop(w3, wallets.leader)
+        
+        # balancer wallets
+        balanceController.balanceLeaderAndMinerMatic(w3, wallets.leader, wallets.miners)
+        
+        # checkin all
+        checkinController.checkinAll(w3, wallets.leader, wallets.miners)
+        
+        # collect all
+        balanceController.collectLeaderMinerCblb(w3, wallets.leader, wallets.miners)
+        log.logOneLine('Finish one checkin-mining loop for leader wallet and ' + os.getenv('MINER_NUMBER') + ' miners.')
+        log.logOneLine('Waiting ' + str(stateObj.minWaitSecond) + ' seconds for next checkin-mining loop...')
+        time.sleep(int(stateObj.minWaitSecond))
+    except:
+        log.logOneLine('Cblb miner dead, restarting')
 
-# checkin all
-cblbCheckin.checkinAll(w3, wallets.leader, wallets.miners)
+    
 
-# collect all
-balanceController.collectLeaderMinerCblb(w3, wallets.leader, wallets.miners)
+    
 
-log.logOneLine('Finish one loop checkin-mining for leader wallet and ' + os.getenv('MINER_NUMBER') + ' miners.')
+   
 

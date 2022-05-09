@@ -6,7 +6,7 @@ from munch import DefaultMunch
 
 # module
 from libs import log
-from libs import state
+from libs import localDb
 
 load_dotenv()
 
@@ -75,11 +75,11 @@ def transferCblb(w3, walletObj, toAddress, value):
 
 def balanceLeaderAndMinerMatic(w3, leaderWalletObj, minersWalletArrayObj):
     log.logOneLine('-------Balance leader wallet and miners wallets MATIC-------')
-    balanceLeader = state.getAddressMaticBalance(leaderWalletObj.address)
+    balanceLeader = localDb.getAddressMaticBalance(leaderWalletObj.address)
 
     # gather overflow MATIC balance from miners to leader
     for minerWalletObj in minersWalletArrayObj:
-        balanceMiner = state.getAddressMaticBalance(minerWalletObj.address)
+        balanceMiner = localDb.getAddressMaticBalance(minerWalletObj.address)
         
         if float(balanceMiner) > float(os.getenv('MINER_MATIC_BALANCE_MAX')) :
             log.logOneLine('Miner address ' + minerWalletObj.address + ' balance is ' + str(balanceMiner) + ' MATIC, transfer out MATIC to leader address.')
@@ -87,8 +87,8 @@ def balanceLeaderAndMinerMatic(w3, leaderWalletObj, minersWalletArrayObj):
             transferMatic(w3, minerWalletObj, leaderWalletObj.address, valueTransfer)
 
             balanceLeader = float(balanceLeader) + valueTransfer
-            state.updateAddressMaticBalance(leaderWalletObj.address, balanceLeader)
-            state.updateAddressMaticBalance(minerWalletObj.address, str(os.getenv('MINER_MATIC_BALANCE_PROPERGATE')))
+            localDb.updateAddressMaticBalance(leaderWalletObj.address, balanceLeader)
+            localDb.updateAddressMaticBalance(minerWalletObj.address, str(os.getenv('MINER_MATIC_BALANCE_PROPERGATE')))
         else:
             log.logOneLine('Miner address ' + minerWalletObj.address + ' balance is ' + str(balanceMiner) + ' MATIC, skip transfer out.')
     
@@ -96,14 +96,14 @@ def balanceLeaderAndMinerMatic(w3, leaderWalletObj, minersWalletArrayObj):
         currBalanceLeader = float(balanceLeader)
         for minerWalletObj in minersWalletArrayObj:
             if currBalanceLeader > float(os.getenv('LEADER_MATIC_BALANCE_PROPERGATE')):
-                minerBalance = state.getAddressMaticBalance(minerWalletObj.address)
+                minerBalance = localDb.getAddressMaticBalance(minerWalletObj.address)
                 if float(minerBalance) < float(os.getenv('MINER_MATIC_BALANCE_MIN')):
                     transferMatic(w3, leaderWalletObj, minerWalletObj.address, float(os.getenv('MINER_MATIC_BALANCE_PROPERGATE')))
                     time.sleep(5)
 
                     currBalanceLeader = currBalanceLeader - float(os.getenv('MINER_MATIC_BALANCE_PROPERGATE'))
-                    state.updateAddressMaticBalance(leaderWalletObj.address, currBalanceLeader)
-                    state.updateAddressMaticBalance(minerWalletObj.address, float(minerBalance) + float(os.getenv('MINER_MATIC_BALANCE_PROPERGATE'))) 
+                    localDb.updateAddressMaticBalance(leaderWalletObj.address, currBalanceLeader)
+                    localDb.updateAddressMaticBalance(minerWalletObj.address, float(minerBalance) + float(os.getenv('MINER_MATIC_BALANCE_PROPERGATE'))) 
                     
                 else:
                     log.logOneLine('Miner address balance is ' + minerBalance + ', skip funding')
@@ -114,7 +114,7 @@ def collectLeaderMinerCblb(w3, leaderWalletObj, minersWalletArrayObj):
     log.logOneLine('-------Collect CBLB from leader wallet and miners wallets-------')
     if os.getenv('BENEFICIARY_ADDRESS') == '':
         log.logOneLine('Beneficiary address is empty, can NOT collect CBLB')
-        exit()
+        log.logOneLine('Please config BENEFICIARY_ADDRESS variable value in .env file to set beneficiary address')
     else:
         collectWalletCblb(w3, leaderWalletObj)
         time.sleep(1)
@@ -126,10 +126,29 @@ def collectWalletCblb(w3, walletObj):
     if os.getenv('BENEFICIARY_ADDRESS') == walletObj.address:
         log.logOneLine('Beneficiary address is self, skip collect')
     else:
-        balanceWallet = state.getAddressCblbBalance(walletObj.address)
+        balanceWallet = localDb.getAddressCblbBalance(walletObj.address)
         if float(balanceWallet) > float(os.getenv('CBLB_COLLECT_THRESHOLD')):
             transferCblb(w3, walletObj, os.getenv('BENEFICIARY_ADDRESS'), balanceWallet)
-            state.updateAddressCblbBalance(walletObj.address, '0')
+            localDb.updateAddressCblbBalance(walletObj.address, '0')
         else:
             log.logOneLine('Wallet address ' + walletObj.address + ' has ' + str(balanceWallet) + ' CBLB, within collect threshold ' + os.getenv('CBLB_COLLECT_THRESHOLD') + ', skip collect')
         
+def waitFundLoop(w3, leaderWalletObj):
+    log.logOneLine('Please fund MATIC to leader address ' + leaderWalletObj.address)
+    balanceLeader = getMaticBalance(w3, leaderWalletObj)
+
+    while float(balanceLeader) < float(os.getenv('CHECKIN_MATIC_BALANCE_MIN')):
+        
+
+        log.logOneLine('Leader wallet MATIC balance is ' + str(balanceLeader) + ', unsuffi min checkin require balance ' + os.getenv('CHECKIN_MATIC_BALANCE_MIN') + ' MATIC')
+        log.logOneLine('Recommand funding ' + str(
+            float(os.getenv('LEADER_MATIC_BALANCE_PROPERGATE')) + 
+            float(os.getenv('MINER_NUMBER')) * 
+            float(os.getenv('MINER_MATIC_BALANCE_PROPERGATE'))
+            ) + ' MATIC to leader address ' + leaderWalletObj.address + ' make ' + os.getenv('MINER_NUMBER') + ' mining'
+        )
+        log.logOneLine('Scan qrcode below to fund leader address ' + leaderWalletObj.address + ' fund MATIC')
+        os.system("qr '" + leaderWalletObj.address +"'")
+        log.logOneLine('Waiting 3 mins recheck leader wallet MATIC balance')
+        time.sleep(3 * 60)
+        balanceLeader = getMaticBalance(w3, leaderWalletObj)

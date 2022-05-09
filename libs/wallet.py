@@ -6,7 +6,7 @@ from munch import DefaultMunch
 from dotenv import load_dotenv
 
 # local import 
-import libs.log as log
+from libs import log
 
 load_dotenv()
 
@@ -38,3 +38,4 @@ def genOneWallet():
         'address': address
     }
     return walletObj
+
