@@ -99,7 +99,7 @@ def balanceLeaderAndMinerMatic(w3, leaderWalletObj, minersWalletArrayObj):
                 minerBalance = localDb.getAddressMaticBalance(minerWalletObj.address)
                 if float(minerBalance) < float(os.getenv('MINER_MATIC_BALANCE_MIN')):
                     transferMatic(w3, leaderWalletObj, minerWalletObj.address, float(os.getenv('MINER_MATIC_BALANCE_PROPERGATE')))
-                    time.sleep(5)
+                    time.sleep(7)
 
                     currBalanceLeader = currBalanceLeader - float(os.getenv('MINER_MATIC_BALANCE_PROPERGATE'))
                     localDb.updateAddressMaticBalance(leaderWalletObj.address, currBalanceLeader)
