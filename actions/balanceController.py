@@ -134,12 +134,9 @@ def collectWalletCblb(w3, walletObj):
             log.logOneLine('Wallet address ' + walletObj.address + ' has ' + str(balanceWallet) + ' CBLB, within collect threshold ' + os.getenv('CBLB_COLLECT_THRESHOLD') + ', skip collect')
         
 def waitFundLoop(w3, leaderWalletObj):
-    log.logOneLine('Please fund MATIC to leader address ' + leaderWalletObj.address)
     balanceLeader = getMaticBalance(w3, leaderWalletObj)
 
     while float(balanceLeader) < float(os.getenv('CHECKIN_MATIC_BALANCE_MIN')):
-        
-
         log.logOneLine('Leader wallet MATIC balance is ' + str(balanceLeader) + ', unsuffi min checkin require balance ' + os.getenv('CHECKIN_MATIC_BALANCE_MIN') + ' MATIC')
         log.logOneLine('Recommand funding ' + str(
             float(os.getenv('LEADER_MATIC_BALANCE_PROPERGATE')) + 
