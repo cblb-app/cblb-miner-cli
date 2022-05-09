@@ -46,6 +46,8 @@ def transferMatic(w3, walletObj, toAddress, value):
     sendStoreTxn = w3.eth.send_raw_transaction(signedStoreTxn.rawTransaction)
     txReceipt = w3.eth.wait_for_transaction_receipt(sendStoreTxn)
     log.logOneLine('Transfer ' + str(value)+' MATIC from ' + walletObj.address + ' to ' + toAddress)
+    while nonce == w3.eth.getTransactionCount(walletObj.address):
+        time.sleep(1)
 
 def transferCblb(w3, walletObj, toAddress, value):
     # load abi
@@ -99,7 +101,6 @@ def balanceLeaderAndMinerMatic(w3, leaderWalletObj, minersWalletArrayObj):
                 minerBalance = localDb.getAddressMaticBalance(minerWalletObj.address)
                 if float(minerBalance) < float(os.getenv('MINER_MATIC_BALANCE_MIN')):
                     transferMatic(w3, leaderWalletObj, minerWalletObj.address, float(os.getenv('MINER_MATIC_BALANCE_PROPERGATE')))
-                    time.sleep(7)
 
                     currBalanceLeader = currBalanceLeader - float(os.getenv('MINER_MATIC_BALANCE_PROPERGATE'))
                     localDb.updateAddressMaticBalance(leaderWalletObj.address, currBalanceLeader)
