@@ -148,7 +148,7 @@ def waitFundLoop(w3, leaderWalletObj):
             ) + ' MATIC to leader address ' + leaderWalletObj.address + ' make ' + os.getenv('MINER_NUMBER') + ' mining'
         )
         log.logOneLine('Scan qrcode below to fund leader address ' + leaderWalletObj.address + ' fund MATIC')
-        os.system("qr '" + leaderWalletObj.address +"'")
+        os.system("qr " + leaderWalletObj.address)
         log.logOneLine('Waiting 3 mins recheck leader wallet MATIC balance')
         time.sleep(3 * 60)
         balanceLeader = getMaticBalance(w3, leaderWalletObj)
