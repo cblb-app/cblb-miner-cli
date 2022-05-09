@@ -49,7 +49,8 @@ def updateAll():
             if float(gap) > float(os.getenv('CHECKIN_ONE_DAY_DURATION')):
                 minWaitSecond = 0
             else:
-                minWaitSecond = float(os.getenv('CHECKIN_ONE_DAY_DURATION')) - float(gap)
+                if minWaitSecond > float(os.getenv('CHECKIN_ONE_DAY_DURATION')) - float(gap):
+                    minWaitSecond = float(os.getenv('CHECKIN_ONE_DAY_DURATION')) - float(gap)
 
             
             if float(matic) < float(os.getenv('CHECKIN_MATIC_BALANCE_MIN')):
@@ -79,7 +80,8 @@ def updateAll():
                 if float(gap) > float(os.getenv('CHECKIN_ONE_DAY_DURATION')):
                     minWaitSecond = 0
                 else:
-                    minWaitSecond = float(os.getenv('CHECKIN_ONE_DAY_DURATION')) - float(gap)
+                    if minWaitSecond > float(os.getenv('CHECKIN_ONE_DAY_DURATION')) - float(gap):
+                        minWaitSecond = float(os.getenv('CHECKIN_ONE_DAY_DURATION')) - float(gap)
 
                 if float(matic) < float(os.getenv('CHECKIN_MATIC_BALANCE_MIN')):
                     isNeedFund = True
@@ -114,7 +116,8 @@ def updateAll():
             if float(gap) > float(os.getenv('CHECKIN_ONE_DAY_DURATION')):
                 minWaitSecond = 0
             else:
-                minWaitSecond = float(os.getenv('CHECKIN_ONE_DAY_DURATION')) - float(gap)
+                if minWaitSecond > float(os.getenv('CHECKIN_ONE_DAY_DURATION')) - float(gap):
+                    minWaitSecond = float(os.getenv('CHECKIN_ONE_DAY_DURATION')) - float(gap)
 
             if float(matic) < float(os.getenv('CHECKIN_MATIC_BALANCE_MIN')):
                 isNeedFund = True
@@ -138,7 +141,8 @@ def updateAll():
                 if float(gap) > float(os.getenv('CHECKIN_ONE_DAY_DURATION')):
                     minWaitSecond = 0
                 else:
-                    minWaitSecond = float(os.getenv('CHECKIN_ONE_DAY_DURATION')) - float(gap)
+                    if minWaitSecond > float(os.getenv('CHECKIN_ONE_DAY_DURATION')) - float(gap):
+                        minWaitSecond = float(os.getenv('CHECKIN_ONE_DAY_DURATION')) - float(gap)
 
                 if float(matic) < float(os.getenv('CHECKIN_MATIC_BALANCE_MIN')):
                     isNeedFund = True
