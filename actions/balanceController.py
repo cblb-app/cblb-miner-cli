@@ -32,13 +32,16 @@ def getCblbBalance(w3, walletObj):
 def transferMatic(w3, walletObj, toAddress, value):
     # get txn nonce
     nonce = w3.eth.getTransactionCount(walletObj.address)
+    # get gas price
+    gasPriceWei = w3.eth.gas_price
+    gasPrice = w3.fromWei(gasPriceWei, 'gwei')
     # trasnfer txn
     storeTxn = {
         'nonce': nonce,
         'to': toAddress,
         'value': w3.toWei(str(value), 'ether'),
         'gas': 2000000,
-        'gasPrice': w3.toWei('200', 'gwei'),
+        'gasPrice': gasPriceWei,
         'chainId': chainId,
     }
 
