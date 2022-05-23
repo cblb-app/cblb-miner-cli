@@ -42,9 +42,9 @@ def updateAll():
         with open(os.getenv('WALLET_JSON'), 'r') as f:
             walletDict = json.load(f)
             wallets = DefaultMunch.fromDict(walletDict)
-            matic = balanceController.getMaticBalance(w3, wallets.leader)
-            cblb = balanceController.getCblbBalance(w3, wallets.leader)
-            gap =  checkinController.getCheckinGap(w3, wallets.leader)
+            matic = balanceController.getMaticBalance(w3, wallets.leader.address)
+            cblb = balanceController.getCblbBalance(w3, wallets.leader.address)
+            gap =  checkinController.getCheckinGap(w3, wallets.leader.address)
 
             if float(gap) > float(os.getenv('CHECKIN_ONE_DAY_DURATION')):
                 minWaitSecond = 0
@@ -73,9 +73,9 @@ def updateAll():
                 str(gap))
 
             for miner in wallets.miners:
-                matic = balanceController.getMaticBalance(w3, miner)
-                cblb = balanceController.getCblbBalance(w3, miner)
-                gap =  checkinController.getCheckinGap(w3, miner)
+                matic = balanceController.getMaticBalance(w3, miner.address)
+                cblb = balanceController.getCblbBalance(w3, miner.address)
+                gap =  checkinController.getCheckinGap(w3, miner.address)
 
                 if float(gap) > float(os.getenv('CHECKIN_ONE_DAY_DURATION')):
                     minWaitSecond = 0
@@ -109,9 +109,9 @@ def updateAll():
         with open(os.getenv('WALLET_JSON'), 'r') as f:
             walletDict = json.load(f)
             wallets = DefaultMunch.fromDict(walletDict)
-            matic = balanceController.getMaticBalance(w3, wallets.leader)
-            cblb = balanceController.getCblbBalance(w3, wallets.leader)
-            gap =  checkinController.getCheckinGap(w3, wallets.leader)
+            matic = balanceController.getMaticBalance(w3, wallets.leader.address)
+            cblb = balanceController.getCblbBalance(w3, wallets.leader.address)
+            gap =  checkinController.getCheckinGap(w3, wallets.leader.address)
 
             if float(gap) > float(os.getenv('CHECKIN_ONE_DAY_DURATION')):
                 minWaitSecond = 0
@@ -134,9 +134,9 @@ def updateAll():
                 str(gap))
 
             for miner in wallets.miners:
-                matic = balanceController.getMaticBalance(w3, miner)
-                cblb = balanceController.getCblbBalance(w3, miner)
-                gap =  checkinController.getCheckinGap(w3, miner)
+                matic = balanceController.getMaticBalance(w3, miner.address)
+                cblb = balanceController.getCblbBalance(w3, miner.address)
+                gap =  checkinController.getCheckinGap(w3, miner.address)
 
                 if float(gap) > float(os.getenv('CHECKIN_ONE_DAY_DURATION')):
                     minWaitSecond = 0

@@ -42,13 +42,16 @@ def checkin(w3, walletObj):
         else:
             log.logOneLine('Execute checkin action for wallet address ' + walletObj.address)
             nonce = w3.eth.get_transaction_count(walletObj.address)
+            # get gas price
+            gasPrice = w3.eth.gas_price
+
             # checkin
             storeTxn = cblbCheckinContractInstance.functions.checkin().buildTransaction({
                 'nonce': nonce,
                 'from': walletObj.address,
                 'value': w3.toWei(os.getenv('CHECKIN_FEE'), 'wei'),
                 'chainId': chainId,
-                'maxFeePerGas': w3.toWei(os.getenv('MAX_FEE_PER_GAS'), 'gwei')
+                'maxFeePerGas': w3.toWei(gasPrice * 1.5, 'wei') 
             })
 
             signedStoreTxn = w3.eth.account.sign_transaction(storeTxn, private_key=walletObj.pkey)
@@ -59,7 +62,7 @@ def checkin(w3, walletObj):
             log.logOneLine('   Finish address ' + walletObj.address + ' checkin and acquire CBLB')
 
 
-def getCheckinGap(w3, walletObj):
+def getCheckinGap(w3, address):
     # load abi
     abiCblbCheckinContract = {}
     with open('abi.json', 'r') as f:
@@ -69,7 +72,7 @@ def getCheckinGap(w3, walletObj):
 
     # interact with contract
     cblbCheckinContractInstance = w3.eth.contract(address=os.getenv('CBLB_CHECKIN_CONTRACT_ADDRESS'), abi=abiCblbCheckinContract)
-    checkinGap = cblbCheckinContractInstance.functions.getCheckinGap().call({'from': walletObj.address})
+    checkinGap = cblbCheckinContractInstance.functions.getCheckinGap().call({'from': address})
     return checkinGap
 
 def getCurrCheckinCblbAmount(w3, walletObj):

@@ -68,18 +68,21 @@ while True:
         # update db
         stateDict = localDb.updateAll()
         stateObj = DefaultMunch.fromDict(stateDict)
-
         if bool(stateObj.isNeedFund):
             balanceController.waitFundLoop(w3, wallets.leader)
-        
+
         # balancer wallets
         balanceController.balanceLeaderAndMinerMatic(w3, wallets.leader, wallets.miners)
-        
+
         # checkin all
         checkinController.checkinAll(w3, wallets.leader, wallets.miners)
-        
+
         # collect all
         balanceController.collectLeaderMinerCblb(w3, wallets.leader, wallets.miners)
+
+        # collect mini matic
+        balanceController.collectMiniMaticToLeaderWallet(w3, wallets.leader, wallets.miners)
+
         log.logOneLine('Finish one checkin-mining loop for leader wallet and ' + os.getenv('MINER_NUMBER') + ' miners.')
         log.logOneLine('Waiting ' + str(stateObj.minWaitSecond) + ' seconds for next checkin-mining loop...')
         time.sleep(int(stateObj.minWaitSecond))

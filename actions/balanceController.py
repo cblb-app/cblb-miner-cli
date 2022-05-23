@@ -12,11 +12,11 @@ load_dotenv()
 
 chainId = int(os.getenv("CHAIN_ID"))
 
-def getMaticBalance(w3, walletObj):
-    balance = w3.eth.get_balance(walletObj.address)
+def getMaticBalance(w3, address):
+    balance = w3.eth.get_balance(address)
     return w3.fromWei(balance, 'ether')
 
-def getCblbBalance(w3, walletObj):
+def getCblbBalance(w3, address):
     # load abi
     abiCblbTokenContract = {}
     with open('abi.json', 'r') as f:
@@ -26,7 +26,7 @@ def getCblbBalance(w3, walletObj):
     
     # interact with contract
     cblbTokenInstance = w3.eth.contract(address=os.getenv('CBLB_TOKEN_CONTRACT_ADDRESS'), abi=abiCblbTokenContract)
-    balance = cblbTokenInstance.functions.balanceOf(walletObj.address).call({'from': walletObj.address})
+    balance = cblbTokenInstance.functions.balanceOf(address).call({'from': address})
     return w3.fromWei(balance, 'ether')
 
 def transferMatic(w3, walletObj, toAddress, value):
@@ -40,7 +40,7 @@ def transferMatic(w3, walletObj, toAddress, value):
         'nonce': nonce,
         'to': toAddress,
         'value': w3.toWei(str(value), 'ether'),
-        'gas': 2000000,
+        'gas': 21000,
         'gasPrice': gasPriceWei,
         'chainId': chainId,
     }
@@ -51,6 +51,48 @@ def transferMatic(w3, walletObj, toAddress, value):
     log.logOneLine('Transfer ' + str(value)+' MATIC from ' + walletObj.address + ' to ' + toAddress)
     while nonce == w3.eth.getTransactionCount(walletObj.address):
         time.sleep(1)
+
+def collectMiniMaticToLeaderWallet(w3, leaderWalletObj, minersWalletArrayObj):
+    log.logOneLine('Miners small amout to checker')
+
+    for minerWalletObj in minersWalletArrayObj:
+        balanceMaticMiner = localDb.getAddressMaticBalance(minerWalletObj.address)
+        balanceCblbMiner = localDb.getAddressCblbBalance(minerWalletObj.address)
+
+        if float(balanceMaticMiner) < float(os.getenv('CHECKIN_MATIC_BALANCE_MIN')) and float(balanceMaticMiner) > 0 and float(balanceCblbMiner) == 0:
+
+            gasAmount = 21000
+            # get txn nonce
+            nonce = w3.eth.getTransactionCount(minerWalletObj.address)
+            # get gas price
+            gasPriceWei = w3.eth.gas_price
+            # get walletObj MATIC balance
+            matic = getMaticBalance(w3, minerWalletObj.address)
+            maticWei = w3.toWei(matic, 'ether')
+
+            exactValueWei = int(maticWei) - gasAmount * int(gasPriceWei)
+            if int(maticWei) > gasAmount * int(gasPriceWei):
+
+                exactValue = w3.fromWei(exactValueWei, 'ether')
+                exactValueFloat = float(exactValue)
+
+                # trasnfer txn
+                storeTxn = {
+                    'nonce': nonce,
+                    'to': leaderWalletObj.address,
+                    'value': exactValueWei,
+                    'gas': gasAmount,
+                    'gasPrice': gasPriceWei,
+                    'chainId': chainId,
+                }
+
+                signedStoreTxn = w3.eth.account.sign_transaction(storeTxn, private_key=minerWalletObj.pkey)
+                sendStoreTxn = w3.eth.send_raw_transaction(signedStoreTxn.rawTransaction)
+                txReceipt = w3.eth.wait_for_transaction_receipt(sendStoreTxn)
+                
+                log.logOneLine('Transfer ' + str(exactValueFloat)+ ' MATIC from ' + minerWalletObj.address + ' to leader ' + leaderWalletObj.address)
+                while nonce == w3.eth.getTransactionCount(minerWalletObj.address):
+                    time.sleep(1)
 
 def transferCblb(w3, walletObj, toAddress, value):
     # load abi
@@ -64,12 +106,14 @@ def transferCblb(w3, walletObj, toAddress, value):
     cblbTokenInstance = w3.eth.contract(address=os.getenv('CBLB_TOKEN_CONTRACT_ADDRESS'), abi=abiCblbTokenContract)
     # get txn nonce
     nonce = w3.eth.getTransactionCount(walletObj.address)
+    # get gas price
+    gasPrice = w3.eth.gas_price
     # trasnfer txn
     storeTxn = cblbTokenInstance.functions.transfer(toAddress, w3.toWei(str(value), 'ether')).buildTransaction({
         'nonce': nonce,
         'from': walletObj.address,
         'chainId': chainId,
-        'maxFeePerGas':w3.toWei(os.getenv('MAX_FEE_PER_GAS'), 'gwei')
+        'maxFeePerGas': w3.toWei(gasPrice * 1.5, 'wei') 
     })
 
     signedStoreTxn = w3.eth.account.sign_transaction(storeTxn, private_key=walletObj.pkey)
@@ -131,14 +175,19 @@ def collectWalletCblb(w3, walletObj):
         log.logOneLine('Beneficiary address is self, skip collect')
     else:
         balanceWallet = localDb.getAddressCblbBalance(walletObj.address)
-        if float(balanceWallet) > float(os.getenv('CBLB_COLLECT_THRESHOLD')):
+        balanceMatic = localDb.getAddressMaticBalance(walletObj.address)
+
+        if float(balanceWallet) > float(os.getenv('CBLB_COLLECT_THRESHOLD')) and float(balanceMatic) > float(os.getenv('COLLECT_MATIC_BALANCE_MIN')):
+            transferCblb(w3, walletObj, os.getenv('BENEFICIARY_ADDRESS'), balanceWallet)
+            localDb.updateAddressCblbBalance(walletObj.address, '0')
+        elif float(balanceMatic) < float(os.getenv('CHECKIN_MATIC_BALANCE_MIN')) and float(balanceMatic) > float(os.getenv('COLLECT_MATIC_BALANCE_MIN')):
             transferCblb(w3, walletObj, os.getenv('BENEFICIARY_ADDRESS'), balanceWallet)
             localDb.updateAddressCblbBalance(walletObj.address, '0')
         else:
             log.logOneLine('Wallet address ' + walletObj.address + ' has ' + str(balanceWallet) + ' CBLB, within collect threshold ' + os.getenv('CBLB_COLLECT_THRESHOLD') + ', skip collect')
         
 def waitFundLoop(w3, leaderWalletObj):
-    balanceLeader = getMaticBalance(w3, leaderWalletObj)
+    balanceLeader = getMaticBalance(w3, leaderWalletObj.address)
 
     while float(balanceLeader) < float(os.getenv('CHECKIN_MATIC_BALANCE_MIN')):
         log.logOneLine('Leader wallet MATIC balance is ' + str(balanceLeader) + ', unsuffi min checkin require balance ' + os.getenv('CHECKIN_MATIC_BALANCE_MIN') + ' MATIC')
@@ -152,4 +201,4 @@ def waitFundLoop(w3, leaderWalletObj):
         os.system("qr " + leaderWalletObj.address)
         log.logOneLine('Waiting 3 mins recheck leader wallet MATIC balance')
         time.sleep(3 * 60)
-        balanceLeader = getMaticBalance(w3, leaderWalletObj)
+        balanceLeader = getMaticBalance(w3, leaderWalletObj.address)
