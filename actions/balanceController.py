@@ -174,17 +174,17 @@ def collectWalletCblb(w3, walletObj):
     if os.getenv('BENEFICIARY_ADDRESS') == walletObj.address:
         log.logOneLine('Beneficiary address is self, skip collect')
     else:
-        balanceWallet = localDb.getAddressCblbBalance(walletObj.address)
+        balanceCblb = localDb.getAddressCblbBalance(walletObj.address)
         balanceMatic = localDb.getAddressMaticBalance(walletObj.address)
 
-        if float(balanceWallet) > float(os.getenv('CBLB_COLLECT_THRESHOLD')) and float(balanceMatic) > float(os.getenv('COLLECT_MATIC_BALANCE_MIN')):
-            transferCblb(w3, walletObj, os.getenv('BENEFICIARY_ADDRESS'), balanceWallet)
+        if float(balanceCblb) > float(os.getenv('CBLB_COLLECT_THRESHOLD')) and float(balanceMatic) > float(os.getenv('COLLECT_MATIC_BALANCE_MIN')):
+            transferCblb(w3, walletObj, os.getenv('BENEFICIARY_ADDRESS'), balanceCblb)
             localDb.updateAddressCblbBalance(walletObj.address, '0')
-        elif float(balanceMatic) < float(os.getenv('CHECKIN_MATIC_BALANCE_MIN')) and float(balanceMatic) > float(os.getenv('COLLECT_MATIC_BALANCE_MIN')):
-            transferCblb(w3, walletObj, os.getenv('BENEFICIARY_ADDRESS'), balanceWallet)
+        elif float(balanceCblb) > 0 and float(balanceMatic) < float(os.getenv('CHECKIN_MATIC_BALANCE_MIN')) and float(balanceMatic) > float(os.getenv('COLLECT_MATIC_BALANCE_MIN')):
+            transferCblb(w3, walletObj, os.getenv('BENEFICIARY_ADDRESS'), balanceCblb)
             localDb.updateAddressCblbBalance(walletObj.address, '0')
         else:
-            log.logOneLine('Wallet address ' + walletObj.address + ' has ' + str(balanceWallet) + ' CBLB, within collect threshold ' + os.getenv('CBLB_COLLECT_THRESHOLD') + ', skip collect')
+            log.logOneLine('Wallet address ' + walletObj.address + ' has ' + str(balanceCblb) + ' CBLB, skip collect')
         
 def waitFundLoop(w3, leaderWalletObj):
     balanceLeader = getMaticBalance(w3, leaderWalletObj.address)
