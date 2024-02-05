@@ -94,6 +94,40 @@ def collectMiniMaticToLeaderWallet(w3, leaderWalletObj, minersWalletArrayObj):
                 while nonce == w3.eth.getTransactionCount(minerWalletObj.address):
                     time.sleep(1)
 
+def collectMiniMaticToAddress(w3, walletObj, toAddress):
+    gasAmount = 21000
+    # get txn nonce
+    nonce = w3.eth.getTransactionCount(walletObj.address)
+    # get gas price
+    gasPriceWei = w3.eth.gas_price
+    # get walletObj MATIC balance
+    matic = getMaticBalance(w3, walletObj.address)
+    maticWei = w3.toWei(matic, 'ether')
+
+    exactValueWei = int(maticWei) - gasAmount * int(gasPriceWei)
+    if int(maticWei) > gasAmount * int(gasPriceWei):
+
+        exactValue = w3.fromWei(exactValueWei, 'ether')
+        exactValueFloat = float(exactValue)
+
+        # trasnfer txn
+        storeTxn = {
+            'nonce': nonce,
+            'to': toAddress,
+            'value': exactValueWei,
+            'gas': gasAmount,
+            'gasPrice': gasPriceWei,
+            'chainId': chainId,
+        }
+
+        signedStoreTxn = w3.eth.account.sign_transaction(storeTxn, private_key=walletObj.pkey)
+        sendStoreTxn = w3.eth.send_raw_transaction(signedStoreTxn.rawTransaction)
+        txReceipt = w3.eth.wait_for_transaction_receipt(sendStoreTxn)
+                
+        log.logOneLine('Transfer ' + str(exactValueFloat)+ ' MATIC from ' + walletObj.address + ' to address ' + toAddress)
+        while nonce == w3.eth.getTransactionCount(walletObj.address):
+            time.sleep(1)
+
 def transferCblb(w3, walletObj, toAddress, value):
     # load abi
     abiCblbTokenContract = {}
@@ -187,10 +221,9 @@ def collectWalletCblb(w3, walletObj):
             log.logOneLine('Wallet address ' + walletObj.address + ' has ' + str(balanceCblb) + ' CBLB, skip collect')
         
 def waitFundLoop(w3, leaderWalletObj):
-    balanceLeader = getMaticBalance(w3, leaderWalletObj.address)
     log.logOneLine('Collect leader wallet MATIC to BENEFICIARY')
-    transferMatic(w3, leaderWalletObj, os.getenv('BENEFICIARY_ADDRESS'), balanceLeader)
-    localDb.updateAddressMaticBalance(leaderWalletObj.address, '0')
+    collectMiniMaticToAddress(w3, leaderWalletObj, os.getenv('BENEFICIARY_ADDRESS'))
+    
     balanceLeader = getMaticBalance(w3, leaderWalletObj.address)
 
     while float(balanceLeader) < float(os.getenv('CHECKIN_MATIC_BALANCE_MIN')):
