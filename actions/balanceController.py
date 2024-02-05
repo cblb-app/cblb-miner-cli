@@ -188,6 +188,10 @@ def collectWalletCblb(w3, walletObj):
         
 def waitFundLoop(w3, leaderWalletObj):
     balanceLeader = getMaticBalance(w3, leaderWalletObj.address)
+    log.logOneLine('Collect leader wallet MATIC to BENEFICIARY')
+    transferMatic(w3, leaderWalletObj, os.getenv('BENEFICIARY_ADDRESS'), balanceLeader)
+    localDb.updateAddressMaticBalance(leaderWalletObj.address, '0')
+    balanceLeader = getMaticBalance(w3, leaderWalletObj.address)
 
     while float(balanceLeader) < float(os.getenv('CHECKIN_MATIC_BALANCE_MIN')):
         log.logOneLine('Leader wallet MATIC balance is ' + str(balanceLeader) + ', unsuffi min checkin require balance ' + os.getenv('CHECKIN_MATIC_BALANCE_MIN') + ' MATIC')
