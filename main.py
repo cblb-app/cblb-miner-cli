@@ -5,7 +5,6 @@ import json
 import time
 from munch import DefaultMunch
 from decimal import Decimal
-import keyboard
 # for Polygon add middleware
 from web3.middleware import geth_poa_middleware
 
