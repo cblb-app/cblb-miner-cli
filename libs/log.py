@@ -32,5 +32,5 @@ def removeExpiredLogFiles():
         fileTime = os.stat(fileLocat).st_mtime
 
         if fileTime < currentTime -dayInSecond * 7:
-            logOneLine('    Remove log file: ', f)
+            logOneLine('    Remove log file: '+ f)
             os.remove(fileLocat)
