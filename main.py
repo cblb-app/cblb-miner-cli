@@ -66,11 +66,8 @@ log.logOneLine('Start checkin mining loop')
 
 while True:
     try:
-        # if there's keyboard interrupt
-        if keyboard.is_pressed("q"):
-            log.logOneLine("q pressed, ending loop")
-            break
         
+
         # update db
         stateDict = localDb.updateAll()
         stateObj = DefaultMunch.fromDict(stateDict)
