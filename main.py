@@ -5,6 +5,7 @@ import json
 import time
 from munch import DefaultMunch
 from decimal import Decimal
+import keyboard
 # for Polygon add middleware
 from web3.middleware import geth_poa_middleware
 
@@ -65,6 +66,11 @@ log.logOneLine('Start checkin mining loop')
 
 while True:
     try:
+        # if there's keyboard interrupt
+        if keyboard.is_pressed("q"):
+            log.logOneLine("q pressed, ending loop")
+            break
+        
         # update db
         stateDict = localDb.updateAll()
         stateObj = DefaultMunch.fromDict(stateDict)
@@ -89,10 +95,3 @@ while True:
         time.sleep(int(stateObj.minWaitSecond))
     except:
         log.logOneLine('Cblb miner dead, restarting')
-
-    
-
-    
-
-   
-
