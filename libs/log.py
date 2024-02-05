@@ -1,4 +1,5 @@
 import os
+import time
 from datetime import datetime
 
 def logOneLine(str):
@@ -20,3 +21,16 @@ def logOneLine(str):
     else:
         with open(todayLogFilePath, 'a') as f:
             f.write(structedLogs)
+
+def removeExpiredLogFiles():
+    logOneLine('Check if thers are any expired log files')
+    # remove over 7 days logs
+    currentTime = time.time()
+    dayInSecond = 86400
+    for f in os.listdir('logs'):
+        fileLocat = os.path.join(os.getcwd(),'logs', f)
+        fileTime = os.stat(fileLocat).st_mtime
+
+        if fileTime < currentTime -dayInSecond * 7:
+            logOneLine('    Remove log file: ', f)
+            os.remove(fileLocat)

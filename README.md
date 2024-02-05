@@ -22,8 +22,8 @@ Open source code, you can modify and adapt to more projects
 
 ## Use previous configuration
 
-- Modify `BENEFICIARY_ADDRESS` in .env file as beneficiary erc20 wallet address for receiving CBLB tokens, default is empty (**important**)
-- Modify `MINER_NUMBER` in the .env file as the required number of miners, the default is 100. The number of miners after initialization does not support secondary modification
+- Modify `BENEFICIARY_ADDRESS` in the .env file as the beneficiary erc20 wallet address that receives [CBLB](https://polygonscan.com/token/0x7a45922F95C845Ff9bE01112AfCF207968a9cA0B) tokens. The default is [cblb developer wallet address](https://polygonscan.com/address/0xe75Dc9d66eae386e76370bfcB4BbD5AdC7BeE6db) (**Important**)
+- Modify `MINER_NUMBER` in the .env file as the required number of miners. The default is 10. The number of miners does not support secondary modification after initialization.
 
 <a id="initialize"></a>
 
@@ -39,7 +39,7 @@ Open source code, you can modify and adapt to more projects
 
 cblb-miner-cli will automatically generate the corresponding number of miner wallets and save PRIVATE KEY and WALLET ADDRESS within the `wallet.json` file, keep this file safe and DO NOT transfer large amount token.
 
-After the initialization is completed, you need to transfer the MATIC tokens under the Polygon network to the leader wallet address recorded in the wallet.json file. By default, 100 miners are recommended to transfer at least 3 MATICs, and for security reasons, no more than 160 MATICs.
+After the initialization is completed, you need to transfer the MATIC tokens under the Polygon network to the leader wallet address recorded in the wallet.json file. By default, 10 miners are recommended to transfer at least 3 MATICs, and for security reasons, no more than 160 MATICs.
 
 <a id="start-mining"></a>
 

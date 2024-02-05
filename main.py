@@ -28,6 +28,9 @@ log.logOneLine('Cblb Check-in contract address: ' + os.getenv('CBLB_CHECKIN_CONT
 log.logOneLine('')
 
 log.logOneLine('Miner self checking...')
+# remove older log files
+log.removeExpiredLogFiles()
+
 # check wallet.json is exist or NOT, if NOT, gen one
 log.logOneLine('Checking wallet.json file')
 isWalletExist = os.path.exists(os.getenv('WALLET_JSON'))
@@ -65,8 +68,6 @@ log.logOneLine('Start checkin mining loop')
 
 while True:
     try:
-        
-
         # update db
         stateDict = localDb.updateAll()
         stateObj = DefaultMunch.fromDict(stateDict)

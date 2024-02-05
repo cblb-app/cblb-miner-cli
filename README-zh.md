@@ -22,8 +22,8 @@ cblb-miner-cli 是[cblb.app](https://cblb.app)发布的基于 Polygon 的 Cblb �
 
 ## 使用之前的配置
 
-- 修改.env 文件中的`BENEFICIARY_ADDRESS`作为接收[CBLB](https://polygonscan.com/token/0x7a45922F95C845Ff9bE01112AfCF207968a9cA0B)代币的受益人 erc20 钱包地址，默认为空（**重要**）
-- 修改.env 文件中的`MINER_NUMBER`作为需要的矿工数量，默认为 100，初始化后矿工数量不支持二次修改
+- 修改.env 文件中的`BENEFICIARY_ADDRESS`作为接收[CBLB](https://polygonscan.com/token/0x7a45922F95C845Ff9bE01112AfCF207968a9cA0B)代币的受益人 erc20 钱包地址，默认为[cblb 开发者钱包地址](https://polygonscan.com/address/0xe75Dc9d66eae386e76370bfcB4BbD5AdC7BeE6db)（**重要**）
+- 修改.env 文件中的`MINER_NUMBER`作为需要的矿工数量，默认为 10，初始化后矿工数量不支持二次修改
 
 <a id="初始化"></a>
 
@@ -39,7 +39,7 @@ cblb-miner-cli 是[cblb.app](https://cblb.app)发布的基于 Polygon 的 Cblb �
 
 cblb-miner-cli 会自动生成对应数量的矿工钱包，对应的私钥和钱包地址保存在`wallet.json`文件中，注意该文件的安全，并不要转入大量代币！
 
-初始化完成后，需要向`wallet.json`文件中记录的 leader 钱包地址转入 Polygon 网路下的 MATIC 代币。默认 100 个矿工推荐转入至少 3 个 MATIC，安全性考虑，不超过 160 个 MATIC。
+初始化完成后，需要向`wallet.json`文件中记录的 leader 钱包地址转入 Polygon 网路下的 MATIC 代币。默认 10 个矿工推荐转入至少 3 个 MATIC，安全性考虑，不超过 160 个 MATIC。
 
 <a id="开始挖矿"></a>
 
