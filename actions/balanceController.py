@@ -221,10 +221,10 @@ def collectWalletCblb(w3, walletObj):
             log.logOneLine('Wallet address ' + walletObj.address + ' has ' + str(balanceCblb) + ' CBLB, skip collect')
         
 def waitFundLoop(w3, leaderWalletObj):
-    log.logOneLine('Collect leader wallet MATIC to BENEFICIARY')
-    collectMiniMaticToAddress(w3, leaderWalletObj, os.getenv('BENEFICIARY_ADDRESS'))
-    
     balanceLeader = getMaticBalance(w3, leaderWalletObj.address)
+    if float(balanceLeader) < float(os.getenv('CHECKIN_MATIC_BALANCE_MIN')):
+        log.logOneLine('Collect leader wallet MATIC to BENEFICIARY')
+        collectMiniMaticToAddress(w3, leaderWalletObj, os.getenv('BENEFICIARY_ADDRESS'))
 
     while float(balanceLeader) < float(os.getenv('CHECKIN_MATIC_BALANCE_MIN')):
         log.logOneLine('Leader wallet MATIC balance is ' + str(balanceLeader) + ', unsuffi min checkin require balance ' + os.getenv('CHECKIN_MATIC_BALANCE_MIN') + ' MATIC')
