@@ -68,6 +68,9 @@ log.logOneLine('Start checkin mining loop')
 
 while True:
     try:
+        # remove older log files
+        log.removeExpiredLogFiles()
+
         # update db
         stateDict = localDb.updateAll()
         stateObj = DefaultMunch.fromDict(stateDict)
